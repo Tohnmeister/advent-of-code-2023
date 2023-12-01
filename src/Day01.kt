@@ -39,7 +39,6 @@ fun main() {
         return input.sumOf { firstAndLastDigitWithText(it) }
     }
 
-    // test if implementation meets criteria from the description, like:
     val input = readInput("Day01.txt")
 
     part1(input).println()
