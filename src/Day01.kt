@@ -39,7 +39,7 @@ fun main() {
         return input.sumOf { firstAndLastDigitWithText(it) }
     }
 
-    val input = readInput("Day01.txt")
+    val input = readLines("Day01.txt")
 
     part1(input).println()
     part2(input).println()
