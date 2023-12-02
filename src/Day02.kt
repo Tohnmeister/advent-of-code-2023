@@ -2,12 +2,24 @@ data class Grab(val red: Int, val green: Int, val blue: Int) {
     fun isPossible(maxGrab: Grab): Boolean {
         return red <= maxGrab.red && green <= maxGrab.green && blue <= maxGrab.blue
     }
+
+    fun power(): Int {
+        return red * green * blue
+    }
 }
 
 data class Game(val id: Int, val grabs: List<Grab>) {
-     fun isPossible(maxGrab: Grab): Boolean {
-         return grabs.all { it.isPossible(maxGrab) }
-     }
+    fun isPossible(maxGrab: Grab): Boolean {
+        return grabs.all { it.isPossible(maxGrab) }
+    }
+
+    fun minimumGrab(): Grab {
+        val red = grabs.maxOf { it.red }
+        val green = grabs.maxOf { it.green }
+        val blue = grabs.maxOf { it.blue }
+
+        return Grab(red, green, blue)
+    }
 }
 
 fun createGames(lines: List<String>): List<Game> {
@@ -45,8 +57,13 @@ fun main() {
         return games.asSequence().filter { it.isPossible(maxGrab) }.sumOf { it.id }
     }
 
+    fun part2(games: List<Game>): Int {
+        return games.sumOf { it.minimumGrab().power() }
+    }
+
     val lines = readLines("Day02.txt")
     val games = createGames(lines)
 
     part1(games).println()
+    part2(games).println()
 }
