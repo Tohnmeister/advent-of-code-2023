@@ -11,7 +11,7 @@ data class PartNumber(val value: Int, val rowNr: Int, val startPos: Int, val end
 
 data class GearIcon(val rowNr: Int, val colNr: Int) {
     fun gearRatio(partNumbers: List<PartNumber>): Int {
-        val gears = partNumbers.filter { it.isAdjacentTo(this) }
+        val gears = partNumbers.asSequence().filter { it.isAdjacentTo(this) }.take(3).toList()
         return if (gears.size == 2) {
             gears[0].value * gears[1].value
         } else {
