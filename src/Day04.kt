@@ -2,9 +2,11 @@ import kotlin.math.pow
 
 fun main() {
     data class Game(val winningNumbers: List<Int>, val cardNumbers: List<Int>) {
-        fun points(): Int {
-            val matchingNumbers = cardNumbers.intersect(winningNumbers.toSet())
+        var count = 1
 
+        val matchingNumbers: Set<Int> by lazy { cardNumbers.intersect(winningNumbers.toSet()) }
+
+        fun points(): Int {
             if (matchingNumbers.isEmpty()) {
                 return 0
             }
@@ -32,7 +34,21 @@ fun main() {
         return games.sumOf { it.points() }
     }
 
+    fun part2(lines: List<String>): Int {
+        val games = toGames(lines)
+        for (idx in games.indices) {
+            val game = games[idx]
+            val nrMatches = game.matchingNumbers.size
+            for (nextGame in games.asSequence().drop(idx + 1).take(nrMatches)) {
+                nextGame.count += game.count
+            }
+        }
+
+        return games.sumOf { it.count }
+    }
+
     val lines = readLines("Day04.txt")
 
     part1(lines).println()
+    part2(lines).println()
 }
