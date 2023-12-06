@@ -26,7 +26,6 @@ fun main() {
 
     val lines = readLines("Day06.txt")
 
-
     part1(lines).println()
     part2(lines).println()
 }
