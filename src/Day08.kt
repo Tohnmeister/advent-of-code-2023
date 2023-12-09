@@ -1,18 +1,8 @@
 fun main() {
-    fun part1(lines: List<String>): Long {
-        val instructions = lines[0].toList()
-        println(instructions.size)
-        val nodes = lines.subList(2, lines.size).associate {
-            val src = it.substring(0, 3)
-            val left = it.substring(7, 10)
-            val right = it.substring(12, 15)
-
-            Pair(src, Pair(left, right))
-        }
-
+    fun calculateNrSteps(instructions: List<Char>, nodes: Map<String, Pair<String, String>>, startingNode: String, endingNodePredicate: (String) -> Boolean): Long {
         var nrSteps: Long = 0
-        var currentNode = "AAA"
-        while (currentNode != "ZZZ") {
+        var currentNode = startingNode
+        while (!endingNodePredicate(currentNode)) {
             val idx = nrSteps % instructions.size
             val instruction = instructions[idx.toInt()]
 
@@ -22,6 +12,19 @@ fun main() {
         }
 
         return nrSteps
+    }
+
+    fun part1(lines: List<String>): Long {
+        val instructions = lines[0].toList()
+        val nodes = lines.subList(2, lines.size).associate {
+            val src = it.substring(0, 3)
+            val left = it.substring(7, 10)
+            val right = it.substring(12, 15)
+
+            Pair(src, Pair(left, right))
+        }
+
+        return calculateNrSteps(instructions, nodes, "AAA") { it == "ZZZ" }
     }
 
     fun part2(lines: List<String>): Long {
