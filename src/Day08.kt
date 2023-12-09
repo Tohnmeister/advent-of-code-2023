@@ -37,7 +37,7 @@ fun main() {
             Pair(src, Pair(left, right))
         }
 
-        val startingNodes = nodes.keys.filter { it[2] == 'A' }.toMutableList()
+        val startingNodes = nodes.keys.filter { it[2] == 'A' }
         val allNrSteps = startingNodes.map { calculateNrSteps(instructions, nodes, it) { it.endsWith('Z') } }
         val max = allNrSteps.max()
         var lcm = max
