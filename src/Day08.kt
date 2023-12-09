@@ -29,7 +29,6 @@ fun main() {
 
     fun part2(lines: List<String>): Long {
         val instructions = lines[0].toList()
-        println(instructions.size)
         val nodes = lines.subList(2, lines.size).associate {
             val src = it.substring(0, 3)
             val left = it.substring(7, 10)
@@ -38,28 +37,26 @@ fun main() {
             Pair(src, Pair(left, right))
         }
 
-        var nrSteps: Long = 0
-        val currentNodes = nodes.keys.filter { it[2] == 'A' }.toMutableList()
-        while (currentNodes.any { it[2] != 'Z' }) {
-            val idx = nrSteps % instructions.size
-            val instruction = instructions[idx.toInt()]
-
-            if (nrSteps % 1_000_000_000 == 0L) {
-                println("${nrSteps / 1_000_000_000} billion")
+        val startingNodes = nodes.keys.filter { it[2] == 'A' }.toMutableList()
+        val allNrSteps = startingNodes.map { calculateNrSteps(instructions, nodes, it) { it.endsWith('Z') } }
+        val max = allNrSteps.max()
+        var lcm = max
+        var foundLcm = false
+        while (!foundLcm) {
+            if (allNrSteps.all { lcm % it == 0L }) {
+                foundLcm = true
+            } else {
+                lcm += max
             }
-
-            for ((i, node) in currentNodes.withIndex()) {
-                currentNodes[i] = if (instruction == 'L') nodes[node]!!.first else nodes[node]!!.second
-            }
-
-            ++nrSteps
         }
 
-        return nrSteps
+        return lcm
     }
 
     val lines = readLines("Day08.txt")
 
-    part1(lines).println()
+    val part1 = part1(lines)
+    check(part1 == 12643L)
+    part1.println()
     part2(lines).println()
 }
