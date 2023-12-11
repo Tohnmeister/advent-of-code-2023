@@ -1,3 +1,24 @@
+package day10;
+
+import day10.Direction.*
+import println
+import readLines
+
+enum class Direction {
+    Top, Right, Bottom, Left;
+
+    fun opposite(): Direction {
+        return when (this) {
+            Top -> Bottom
+            Right -> Left
+            Bottom -> Top
+            Left -> Right
+        }
+    }
+}
+
+class NextPos(val direction: Direction, val x: Int, val y: Int)
+
 fun main() {
 
     data class Pipe(val start: Boolean = false, val top: Boolean = false, val right: Boolean = false, val bottom: Boolean = false, val left: Boolean = false)
@@ -14,6 +35,10 @@ fun main() {
     )
 
     fun part1(lines: List<String>): Int {
+        fun isValid(x: Int, y: Int): Boolean {
+            return x >= 0 && x < lines[0].length && y >= 0 && y < lines.size
+        }
+
         // Find S
         // Then from S, find the loop, by
         // Going in each direction, in which there's a connecting pipe, while keeping track of all visited positions
@@ -26,15 +51,25 @@ fun main() {
         val found = false
         var nrSteps = 0
         var currentPos = startPos
+        var comingFrom: Direction? = null
         while (!found) {
-            val nextPositions = listOf(
-                Pair(startPos.first, startPos.second - 1), Pair(startPos.first + 1, startPos.second), Pair(startPos.first, startPos.second + 1), Pair(startPos.first - 1, startPos.second)
-            ).filter { (x, y) ->
-                x >= 0 && x < pipes[0].size && y >= 0 && y < pipes.size
-            }
-            for (nextPos in nextPositions) {
+            val top = NextPos(Top, currentPos.first, currentPos.second - 1)
+            val right = NextPos(Right, currentPos.first + 1, currentPos.second)
+            val bottom = NextPos(Bottom, currentPos.first, currentPos.second + 1)
+            val left = NextPos(Left, currentPos.first - 1, currentPos.second)
 
-            }
+            val possibleNextPositions = when (comingFrom) {
+                null -> listOf(top, right, bottom, left)
+                Top -> listOf(right, bottom, left)
+                Right -> listOf(top, bottom, left)
+                Bottom -> listOf(top, right, left)
+                Left -> listOf(top, right, bottom)
+            }.filter { isValid(it.x, it.y) }
+
+            possibleNextPositions.find { pipes[it.x][it.y] }
+
+
+
             ++nrSteps
         }
 
@@ -45,3 +80,4 @@ fun main() {
 
     part1(lines).println()
 }
+
