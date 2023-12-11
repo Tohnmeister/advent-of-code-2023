@@ -2,7 +2,7 @@ fun main() {
     fun part1(lines: List<String>): Int {
         // Find S
         // Then from S, find the loop, by
-        // Going in each direction, while keeping track of all visited positions
+        // Going in each direction, in which there's a connecting pipe, while keeping track of all visited positions
             // If a position is out of the field, then his is NOT the loop
             // If a position is visited twice, which is not S, then this is NOT the loop
             // If a position is visited twice, and it is S, then this is the loop
