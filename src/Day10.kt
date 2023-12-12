@@ -21,34 +21,26 @@ class NextPos(val direction: Direction, val x: Int, val y: Int)
 
 fun main() {
 
-    data class Pipe(val start: Boolean = false, val top: Boolean = false, val right: Boolean = false, val bottom: Boolean = false, val left: Boolean = false)
+    class Pipe(vararg val directions: Direction, val start: Boolean = false) {
+        fun connectsTo(direction: Direction): Boolean = directions.contains(direction)
+    }
 
     val pipeMap = mapOf(
-        '|' to Pipe(top = true, bottom = true),
-        '-' to Pipe(left = true, right = true),
-        'L' to Pipe(top = true, right = true),
-        'J' to Pipe(top = true, left = true),
-        '7' to Pipe(bottom = true, left = true),
-        'F' to Pipe(bottom = true, right = true),
+        '|' to Pipe(Top, Bottom),
+        '-' to Pipe(Left, Right),
+        'L' to Pipe(Top, Right),
+        'J' to Pipe(Top, Left),
+        '7' to Pipe(Bottom, Left),
+        'F' to Pipe(Bottom, Right),
         '.' to Pipe(),
-        'S' to Pipe(start = true),
+        'S' to Pipe(Top, Right, Bottom, Left, start = true)
     )
 
     fun part1(lines: List<String>): Int {
-        fun isValid(x: Int, y: Int): Boolean {
-            return x >= 0 && x < lines[0].length && y >= 0 && y < lines.size
-        }
 
-        // Find S
-        // Then from S, find the loop, by
-        // Going in each direction, in which there's a connecting pipe, while keeping track of all visited positions
-            // If a position is out of the field, then his is NOT the loop
-            // If a position is visited twice, which is not S, then this is NOT the loop
-            // If a position is visited twice, and it is S, then this is the loop
-                // Return length of loop / 2
         val pipes = lines.map { line -> line.map { pipeMap[it]!! }}
-        val startPos = pipes.asSequence().withIndex().flatMap { (x, line) -> line.withIndex().map { (y, pipe) -> Pair(pipe, Pair(x, y)) }}.find { it.first.start }!!.second
-        val found = false
+        val startPos = pipes.asSequence().withIndex().flatMap { (y, line) -> line.withIndex().map { (x, pipe) -> Pair(pipe, Pair(x, y)) }}.find { it.first.start }!!.second
+        var found = false
         var nrSteps = 0
         var currentPos = startPos
         var comingFrom: Direction? = null
@@ -57,27 +49,33 @@ fun main() {
             val right = NextPos(Right, currentPos.first + 1, currentPos.second)
             val bottom = NextPos(Bottom, currentPos.first, currentPos.second + 1)
             val left = NextPos(Left, currentPos.first - 1, currentPos.second)
+            val currentPipe = pipes[currentPos.second][currentPos.first]
 
-            val possibleNextPositions = when (comingFrom) {
-                null -> listOf(top, right, bottom, left)
-                Top -> listOf(right, bottom, left)
-                Right -> listOf(top, bottom, left)
-                Bottom -> listOf(top, right, left)
-                Left -> listOf(top, right, bottom)
-            }.filter { isValid(it.x, it.y) }
-
-            possibleNextPositions.find { pipes[it.x][it.y] }
+            val possibleNextPositions = sequenceOf(top, right, bottom, left)
+                .filter { nextPos -> nextPos.direction != comingFrom } // The pipe where we came from should not be allowed
+                .filter { nextPos -> nextPos.x >= 0 && nextPos.x < lines[0].length && nextPos.y >= 0 && nextPos.y < lines.size } // The pipe outside the field should not be allowed
+                .filter { currentPipe.connectsTo(it.direction) } // The current pipe should connect to the next pipe
+                .toList() // .find { nextPos -> pipes[nextPos.x][nextPos.y].connectsTo(nextPos.direction.opposite()) } // The next pipe should connect to the current pipe
 
 
+            // From those pipes, find the pipe that has a connection to the current pipe
+            val nextPos = possibleNextPositions.find {
+                pipes[it.y][it.x].connectsTo(it.direction.opposite())
+            }!!
+            currentPos = Pair(nextPos.x, nextPos.y)
+            comingFrom = nextPos.direction.opposite()
 
             ++nrSteps
+
+            if (pipes[nextPos.y][nextPos.x].start) {
+                found = true
+            }
         }
 
-        return lines.size
+        return nrSteps / 2
     }
 
     val lines = readLines("Day10.txt")
 
     part1(lines).println()
 }
-
