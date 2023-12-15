@@ -78,30 +78,95 @@ fun main() {
 
     fun part2(lines: List<String>): Int {
         val loop = calculateLoop(lines)
-        var count = 0
 
-        for ((y, line) in lines.withIndex()) {
-            var insideLoop = false
-            for (x in line.indices) {
-                if (loop.contains(Pair(x, y))) {
-                    if (lines[y][x] != '-') {
-                        insideLoop = !insideLoop
+        fun countHorizontalBreaks(x: Int, y: Int): Int {
+            fun rulesOut(char1: Char?, char2: Char): Boolean {
+                return char1 == 'F' && char2 == 'J' || char1 == '7' && char2 == 'L'
+            }
+
+            var count = 0
+            var lastChar: Char? = null
+            for (row in 0 until y) {
+                val pos = Pair(x, row)
+                val currentChar = lines[row][x]
+
+                if (loop.contains(pos)) {
+                    when (currentChar) {
+                        '-' -> ++count
+                        'F', '7' -> {
+                            lastChar = currentChar
+                        }
+                        'J', 'L' -> {
+                            if (rulesOut(lastChar, currentChar)) {
+                                ++count
+                            }
+                            lastChar = null
+                        }
                     }
-                } else {
-                    if (insideLoop) {
-                        ++count
+                }
+            }
+            return count
+        }
+
+        fun countVerticalBreaks(x: Int, y: Int): Int {
+            fun rulesOut(char1: Char?, char2: Char): Boolean {
+                return char1 == 'L' && char2 == '7' || char1 == 'F' && char2 == 'J'
+            }
+
+            var count = 0
+            var lastChar: Char? = null
+            for (col in 0 until x) {
+                val pos = Pair(col, y)
+                val currentChar = lines[y][col]
+
+                if (loop.contains(pos)) {
+                    when (currentChar) {
+                        '|' -> ++count
+                        'L', 'F' -> {
+                            lastChar = currentChar
+                        }
+                        '7', 'J' -> {
+                            if (rulesOut(lastChar, currentChar)) {
+                                ++count
+                            }
+                            lastChar = null
+                        }
+                    }
+                }
+            }
+            return count
+        }
+
+        var insideLoopCount = 0
+
+        // Count number of col breaks and row breaks
+        // If both are even or both are uneven, we're inside the loop
+        // If not, we're outside the loop
+        val changedList = lines.map { it.toMutableList() }.toMutableList()
+        for ((y, line) in lines.withIndex()) {
+            for (x in lines[y].indices) {
+                if (!loop.contains(Pair(x, y))) {
+                    val nrOfHorizontalBreaks = countHorizontalBreaks(x, y)
+                    val nrOfVerticalBreaks = countVerticalBreaks(x, y)
+
+                    if (nrOfVerticalBreaks % 2 == 1 && nrOfHorizontalBreaks % 2 == 1) {
+                        changedList[y][x] = 'I'
+                        ++insideLoopCount
                     }
                 }
             }
         }
+        for (line in changedList) {
+            println(line.joinToString(""))
+        }
 
-        return count
+        return insideLoopCount
     }
 
-    val lines = readLines("Day10Test.txt")
+    val lines = readLines("Day10.txt")
 
     val part1 = part1(lines)
-    //check(part1 == 7063)
+    check(part1 == 7063)
     part1.println()
     part2(lines).println()
 }
