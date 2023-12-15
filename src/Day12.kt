@@ -1,54 +1,57 @@
 import kotlin.math.pow
 
 fun main() {
-    fun part1(lines: List<String>): Int {
-        fun isValid(springList: String, sizeList: List<Int>): Boolean {
-            val regexStr = "\\.*" + sizeList.map { List(it) { '#' } }.joinToString("\\.+") { it.joinToString("") } + "\\.*"
-            val regex = regexStr.toRegex()
+    fun calculateNrOfPossibilities(springList: String, sizeList: List<Int>): Int {
+        val regex =
+            ("\\.*" + sizeList.map { List(it) { '#' } }.joinToString("\\.+") { it.joinToString("") } + "\\.*").toRegex()
 
-            val result = regex.matches(springList)
+        val unknownPositions =
+            springList.asSequence().withIndex().filter { (_, char) -> char == '?' }.map { (idx, _) -> idx }.toList()
 
-//            if (result) {
-//                println("$springList matches $regex")
-//            } else {
-//                println("$springList does not match $regex")
-//            }
+        val max = (2.0.pow(unknownPositions.size) - 1).toInt()
 
-            return result
+        var lineCount = 0
+
+        for (i in 0..max) {
+            val binary = i.toString(2)
+            val stringBuilder = StringBuilder(springList.replace('?', '.'))
+
+            val springPositions =
+                binary.reversed().asSequence().withIndex().filter { it.value == '1' }.map { it.index }.toList()
+            for (springPos in springPositions) {
+                stringBuilder.setCharAt(unknownPositions[springPos], '#')
+            }
+            if (regex.matches(stringBuilder.toString())) {
+                ++lineCount
+            }
         }
+        return lineCount
+    }
 
-        var count = 0
-
-        for (line in lines) {
+    fun part1(lines: List<String>): Int {
+        return lines.sumOf { line ->
             val spacePos = line.indexOf(' ')
             val springList = line.take(spacePos)
             val sizeList = line.drop(spacePos + 1).split(',').map { it.toInt() }
-
-            val unknownPositions = springList.asSequence().withIndex().filter { (_, char) -> char == '?' }.map { (idx, _) -> idx }.toList()
-
-            val max = (2.0.pow(unknownPositions.size) - 1).toInt()
-
-            var lineCount = 0
-
-            for (i in 0..max) {
-                val binary = i.toString(2)
-                val stringBuilder = StringBuilder(springList.replace('?', '.'))
-
-                val springPositions = binary.reversed().asSequence().withIndex().filter { it.value == '1' }.map { it.index }.toList()
-                for (springPos in springPositions) {
-                    stringBuilder.setCharAt(unknownPositions[springPos], '#')
-                }
-                if (isValid(stringBuilder.toString(), sizeList)) {
-                    ++lineCount
-                }
-            }
-            count += lineCount
+            calculateNrOfPossibilities(springList, sizeList)
         }
+    }
 
-        return count
+    fun part2(lines: List<String>): Int {
+        return lines.sumOf { line ->
+            val spacePos = line.indexOf(' ')
+            val springList = line.take(spacePos)
+            val springListUnfolded = List(5) { springList }.joinToString("?")
+            val sizeList = line.drop(spacePos + 1).split(',').map { it.toInt() }
+            val sizeListUnfolded = List(5) { sizeList }.flatten()
+            calculateNrOfPossibilities(springListUnfolded, sizeListUnfolded)
+        }
     }
 
     val lines = readLines("Day12.txt")
 
-    part1(lines).println()
+    val part1 = part1(lines)
+    check(part1 == 7771)
+    part1.println()
+    part2(lines).println()
 }
