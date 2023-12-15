@@ -1,15 +1,5 @@
 fun main() {
-    fun calculateHash(step: String): Int {
-        var currentValue = 0
-        for (char in step) {
-            val asciiValue = char.code
-            currentValue += asciiValue
-            currentValue *= 17
-            currentValue %= 256
-        }
-
-        return currentValue
-    }
+    fun calculateHash(step: String): Int = step.fold(0) { currentValue, char -> ((currentValue + char.code) * 17) % 256 }
 
     fun part1(lines: List<String>): Int {
         val steps = lines[0].split(',')
@@ -20,5 +10,7 @@ fun main() {
     val lines = readLines("Day15.txt")
 //    val lines = readLines("Day15Test.txt")
 
-    part1(lines).println()
+    val part1 = part1(lines)
+    check(part1 == 511215)
+    part1.println()
 }
