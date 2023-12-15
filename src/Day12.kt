@@ -2,8 +2,11 @@ import kotlin.math.pow
 
 fun main() {
     fun calculateNrOfPossibilities(springList: String, sizeList: List<Int>): Int {
+        println("Checking $springList")
         val regex =
             ("\\.*" + sizeList.map { List(it) { '#' } }.joinToString("\\.+") { it.joinToString("") } + "\\.*").toRegex()
+        val nrOfDamagedSprings = springList.count { it == '#' }
+        val nrOfMissingDamagedSprings = sizeList.sum() - nrOfDamagedSprings
 
         val unknownPositions =
             springList.asSequence().withIndex().filter { (_, char) -> char == '?' }.map { (idx, _) -> idx }.toList()
@@ -14,15 +17,17 @@ fun main() {
 
         for (i in 0..max) {
             val binary = i.toString(2)
-            val stringBuilder = StringBuilder(springList.replace('?', '.'))
+            if (binary.count { it == '1' } == nrOfMissingDamagedSprings) {
+                val stringBuilder = StringBuilder(springList.replace('?', '.'))
 
-            val springPositions =
-                binary.reversed().asSequence().withIndex().filter { it.value == '1' }.map { it.index }.toList()
-            for (springPos in springPositions) {
-                stringBuilder.setCharAt(unknownPositions[springPos], '#')
-            }
-            if (regex.matches(stringBuilder.toString())) {
-                ++lineCount
+                val springPositions =
+                    binary.reversed().asSequence().withIndex().filter { it.value == '1' }.map { it.index }.toList()
+                for (springPos in springPositions) {
+                    stringBuilder.setCharAt(unknownPositions[springPos], '#')
+                }
+                if (regex.matches(stringBuilder.toString())) {
+                    ++lineCount
+                }
             }
         }
         return lineCount
