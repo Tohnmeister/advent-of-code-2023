@@ -6,13 +6,13 @@ fun main() {
     fun calculateNrOfPossibilities(springList: String, sizeList: List<Int>, currentSizeIdx: Int = 0): Long {
         return cache.getOrPut(CacheKey(springList, sizeList, currentSizeIdx)) {
             val currentSize = sizeList[currentSizeIdx]
-            val postSizes = sizeList.asSequence().drop(currentSizeIdx + 1) // asSequence
+            val postSizes = sizeList.asSequence().drop(currentSizeIdx + 1)
             val end = springList.length - 1 - postSizes.sumOf { it + 1 }
             val lastStart = end - currentSize + 1
 
             (0..lastStart).sumOf { startPos ->
-                val partBefore = springList.asSequence().take(startPos) // asSequence
-                val currentPart = springList.asSequence().drop(startPos).take(currentSize) // asSequence
+                val partBefore = springList.asSequence().take(startPos)
+                val currentPart = springList.asSequence().drop(startPos).take(currentSize)
                 val endPos = startPos + currentSize - 1
                 val charAfter = if (endPos == springList.length - 1) null else springList[endPos + 1]
                 val nextCharValid = charAfter != '#'
