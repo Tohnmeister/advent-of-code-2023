@@ -27,3 +27,12 @@ fun findCharPos(lines: List<String>, char: Char): Point? {
         .flatMap { (y, line) -> line.withIndex().map { (x, char) -> Pair(char, Point(x, y)) } }
         .find { it.first == char }?.second
 }
+
+fun List<String>.toCharPoints(): List<Pair<Point, Char>> {
+    return this
+        .withIndex()
+        .flatMap { (y, line) -> line
+            .withIndex()
+            .map { (x, char)  -> Pair(Point(x, y), char) }
+        }
+}
